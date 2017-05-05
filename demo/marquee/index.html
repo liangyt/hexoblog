@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="" />
+    <meta name="description" content=" " />
+    <meta http-equiv="x-ua-compatible" content="IE=Edge, chrome=1" />
+    <meta name="renderer" content="webkit">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <title>MarQuee</title>
+    <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .wrap {
+            max-width: 960px;
+            width: 90%;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        ul, li {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .items {
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .item {
+            display: inline-block;
+            width: 240px;
+            text-align: center;
+        }
+
+        .item img {
+            width: 90%;
+        }
+
+        @media (max-width: 780px) {
+            .item {
+                width: 190px;
+            }
+        }
+
+        @media (max-width: 580px) {
+            .item {
+                width: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div>
+        代码出处：<a href="http://yangbo5207.github.io/2016/05/11/scroll.html" target="_blank">http://yangbo5207.github.io/2016/05/11/scroll.html</a>
+    </div>
+    <div class="wrap">
+        <ul class="items"><!--
+        --><li class="item"><img src="https://static.tigerbrokers.com/portal/images/cooperation/stockGame/v2-partner0.8a07a886.jpg" alt=""></li><!--
+        --><li class="item"><img src="https://static.tigerbrokers.com/portal/images/cooperation/stockGame/v2-partner1.56bcecb3.png" alt=""></li><!--
+        --><li class="item"><img src="https://static.tigerbrokers.com/portal/images/cooperation/stockGame/v2-partner2.9a7e8842.jpg" alt=""></li><!--
+        --><li class="item"><img src="https://static.tigerbrokers.com/portal/images/cooperation/stockGame/v2-partner3.47acdfbd.png" alt=""></li><!--
+        --><li class="item"><img src="https://static.tigerbrokers.com/portal/images/cooperation/stockGame/v2-partner5.e9205d49.jpg" alt=""></li><!--
+        --><li class="item"><img src="https://static.tigerbrokers.com/portal/images/cooperation/stockGame/v2-partner6.83b14a71.png" alt=""></li><!--
+        --></ul>
+    </div>
+
+    <script>
+        (function($) {
+            var $items = $('.items'),
+                lastTime = 0,
+                nextFrame = window.requestAnimationFrame       ||
+                            window.webkitRequestAnimationFrame ||
+                            window.mozRequestAnimationFrame    ||
+                            window.msRequestAnimationFrame     ||
+                            function(callback) {
+                                var currTime = + new Date,
+                                    delay = Math.max(1000/60, 1000/60 - (currTime - lastTime));
+                                lastTime = currTime + delay;
+                                return setTimeout(callback, delay);
+                            },
+                cancelFrame = window.cancelAnimationFrame             ||
+                            window.webkitCancelAnimationFrame         ||
+                            window.webkitCancelRequestAnimationFrame  ||
+                            window.mozCancelRequestAnimationFrame     ||
+                            window.msCancelRequestAnimationFrame      ||
+                            clearTimeout,
+                scrollX = 0,
+                itemW = 240,
+                target = 0,
+                timer = null;
+            
+            // 根据不同的屏幕尺寸对应不同的元素大小
+            if ($items.children().eq(0).width() == 190) {
+                itemW = 190;
+            }
+            if ($items.children().eq(0).width() == 160) {
+                itemW = 160;
+            }
+            // 总长度
+            target = itemW * $items.children().length;
+
+            $items.html( $items.html() + $items.html() );
+
+            adAni();
+
+            function adAni() {
+                timer = nextFrame(function() {
+                    scrollX += 1;
+                    if (scrollX >= target) {
+                        scrollX = 0;
+                    }
+                    $items.scrollLeft(scrollX);
+                    adAni();
+                });
+            }
+            // 如果是PC端，给鼠标添加移入移出事件；移出继续滚动，移入停止滚动
+            if (!isMobile()) {
+                $items.on('mouseover', function() {
+                    cancelFrame(timer);
+                }).on('mouseout', function() { adAni(); });
+            }
+
+            var sX, sL;
+            $items.on('touchstart', function(e) {
+                cancelFrame(timer);
+                sX = e.originalEvent.changedTouches[0].pageX;
+                sL = $items.scrollLeft();
+            }).on('touchmove', function(e) {
+                var dis = e.originalEvent.changedTouches[0].pageX - sX;
+                var nowX = sL - dis;
+                if (nowX > target) {
+                    nowX = 0;
+                }
+                $items.scrollLeft(nowX);
+            }).on('touchend', function(e) {
+                scrollX = $items.scrollLeft();
+                if (scrollX >= target) {
+                    scrollX = 0;
+                }
+                adAni();
+            })
+
+            // 判断是否在移动端
+            function isMobile() {
+                return /(iphone|ipad|ipod|ios|android|mobile|blackberry|iemobile|mqqbrowser|juc|fennec|wosbrowser|browserng|Webos|symbian|windows phone)/i.test(navigator.userAgent);
+            }
+        })(jQuery);
+    </script>
+</body>
+</html>

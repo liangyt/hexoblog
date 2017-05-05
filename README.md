@@ -4,4 +4,4 @@
 hexo clean 删除原来生成的代码  
 hexo g 重新生成  
 gulp 复制自定义代码到 public 目录  
-hexo d 分布
+hexo d 发布
